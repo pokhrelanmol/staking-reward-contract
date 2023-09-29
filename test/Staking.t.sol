@@ -66,11 +66,27 @@ contract StakingTest is Test {
         assertEq(staking.earned(user1), earned); // 7142 * 1e18 rewards
         //getReward
         staking.getReward();
+        // console2.log("RewardPerTokenStored", staking.rewardPerTokenStored() / 1e18);
         assertEq(weth.balanceOf(user1), earned);
     }
-    //  function testClaimRewardAfterDurationIsOver() public{
-    //      vm.startPrank(user1);
-    //      maxi.approve(1000e18)
-    //      staking.stake(1000e18)
-    //    }
+
+    function testClaimRewardAfterDurationIsOver() public {
+        vm.startPrank(user1);
+        maxi.approve(address(staking), STAKE_AMOUNT);
+        staking.stake(STAKE_AMOUNT);
+        vm.stopPrank();
+        //  Let's see what happen if we claim rewards after the 7 day duration is over
+        vm.warp(7 days);
+        // after 7 days the owner will notify and set new finishAt
+        vm.startPrank(owner);
+        weth.transfer(address(staking), REWARD_AMOUNT); // add new reward balance
+        staking.notifyRewardAmount(REWARD_AMOUNT); // update reward and update finish time
+        vm.stopPrank();
+        // Still we have not claimed the previous rewards-
+        vm.warp(2 days); //2 more days passes
+        vm.startPrank(user1);
+        console2.log(staking.earned(user1));
+        // staking.stake(); // let's see how much we have
+        vm.stopPrank();
+    }
 }

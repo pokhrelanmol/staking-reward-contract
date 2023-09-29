@@ -4,6 +4,7 @@ pragma solidity 0.8.21;
 
 import {IERC20} from "openzeppelin/token/ERC20/IERC20.sol";
 import {Ownable} from "openzeppelin/access/Ownable.sol";
+import {console2} from "forge-std/Test.sol";
 
 contract Staking is Ownable {
     IERC20 immutable stakingToken;
@@ -64,6 +65,7 @@ contract Staking is Ownable {
     }
 
     function earned(address _account) public view returns (uint256) {
+        //1000e18 * (amount/duration - 0) / 1e18 + 0
         return (balanceOf[_account] * (rewardPerToken() - userRewardPerTokenPaid[_account])) / 1e18 + rewards[_account];
     }
 
